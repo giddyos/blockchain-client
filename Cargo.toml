@@ -7,6 +7,7 @@ license = "MIT"
 readme = "README.md"
 keywords = ["blockchain", "bitcoin", "litecoin", "node", "rpc"]
 categories = ["network-programming", "command-line-utilities", "api-bindings"]
+repository = "https://github.com/giddyos/blockchain-client"
 
 [dependencies]
 async-trait = "0.1.89"
