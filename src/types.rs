@@ -1,5 +1,19 @@
 use serde::{Deserialize, Serialize};
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Chain {
+    Bitcoin,
+    Litecoin,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Network {
+    Mainnet,
+    Testnet,
+    Regtest,
+    Signet,
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Utxo {
     pub txid: String,
