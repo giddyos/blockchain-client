@@ -1,0 +1,11 @@
+[package]
+name = "blockchain-client"
+version = "1.0.0"
+edition = "2024"
+description = "A client for interacting with BTC-based blockchains."
+license = "MIT"
+readme = "README.md"
+keywords = ["blockchain", "bitcoin", "litecoin", "node", "rpc"]
+categories = ["crypto", "network-programming", "command-line-utilities"]
+
+[dependencies]
