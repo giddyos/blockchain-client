@@ -163,7 +163,9 @@ impl BlockchainClient for JsonRpcClient {
         }
 
         if let Some(is_watchonly) = validation.iswatchonly {
-            return Ok(is_watchonly);
+            if is_watchonly {
+                return Ok(true);
+            }
         }
 
         let received = self
