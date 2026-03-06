@@ -6,7 +6,7 @@ description = "A client for interacting with BTC-based blockchains."
 license = "MIT"
 readme = "README.md"
 keywords = ["blockchain", "bitcoin", "litecoin", "node", "rpc"]
-categories = ["crypto", "network-programming", "command-line-utilities"]
+categories = ["network-programming", "command-line-utilities", "api-bindings"]
 
 [dependencies]
 async-trait = "0.1.89"
