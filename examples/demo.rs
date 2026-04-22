@@ -9,7 +9,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
         "yourusername".to_string(),
         "yourpassword".to_string(),
     )
-    .with_timeout(30);
+    .with_timeout(30)
+    .with_connection_pool(4, 300, 60);
 
     // the client used to interact with the blockchain
     let client = JsonRpcClient::new(config, Chain::Litecoin, Network::Mainnet)?;

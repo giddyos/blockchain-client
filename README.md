@@ -22,7 +22,8 @@ async fn main() {
         "http://localhost:9332".to_string(),
         "yourusername".to_string(),
         "yourpassword".to_string(),
-    );
+    )
+    .with_connection_pool(4, 300, 60);
 
     let client = JsonRpcClient::new(config, Chain::Litecoin, Network::Mainnet).unwrap();
 

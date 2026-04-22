@@ -20,6 +20,9 @@ impl JsonRpcClient {
     pub fn new(config: RpcConfig, chain: Chain, network: Network) -> Result<Self> {
         let http_client = Client::builder()
             .timeout(config.timeout())
+            .pool_max_idle_per_host(config.pool_max_idle_per_host)
+            .pool_idle_timeout(config.pool_idle_timeout())
+            .tcp_keepalive(config.tcp_keepalive())
             .build()?;
 
         Ok(Self {
@@ -162,10 +165,10 @@ impl BlockchainClient for JsonRpcClient {
             return Ok(false);
         }
 
-        if let Some(is_watchonly) = validation.iswatchonly {
-            if is_watchonly {
-                return Ok(true);
-            }
+        if let Some(is_watchonly) = validation.iswatchonly
+            && is_watchonly
+        {
+            return Ok(true);
         }
 
         let received = self
