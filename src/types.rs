@@ -18,8 +18,8 @@ pub enum Network {
 pub struct Utxo {
     pub txid: String,
     pub vout: u32,
-    pub address: Option<String>,
-    pub label: Option<String>,
+    pub address: String,
+    pub label: String,
     #[serde(rename = "scriptPubKey")]
     pub script_pub_key: String,
     pub amount: f64,
@@ -31,6 +31,7 @@ pub struct Utxo {
     pub spendable: bool,
     pub solvable: bool,
     pub reused: Option<bool>,
+    #[serde(rename = "desc")]
     pub descriptor: Option<String>,
     pub safe: bool,
 }
@@ -38,24 +39,24 @@ pub struct Utxo {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TransactionListItem {
     pub txid: String,
-    pub address: Option<String>,
+    pub address: String,
     pub category: String,
     pub amount: f64,
-    pub label: Option<String>,
-    pub vout: Option<u32>,
+    pub label: String,
+    pub vout: u32,
     pub fee: Option<f64>,
     pub confirmations: i64,
     pub generated: Option<bool>,
     pub trusted: Option<bool>,
-    pub blockhash: Option<String>,
-    pub blockheight: Option<u64>,
-    pub blockindex: Option<u64>,
-    pub blocktime: Option<u64>,
+    pub blockhash: String,
+    pub blockheight: u64,
+    pub blockindex: u64,
+    pub blocktime: u64,
     pub time: u64,
     pub timereceived: u64,
     pub comment: Option<String>,
     #[serde(rename = "bip125-replaceable")]
-    pub bip125_replaceable: Option<String>,
+    pub bip125_replaceable: String,
     pub abandoned: Option<bool>,
     #[serde(rename = "involvesWatchonly")]
     pub involves_watchonly: Option<bool>,
@@ -79,12 +80,12 @@ pub struct ScriptSig {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ScriptPubKey {
-    pub asm: Option<String>,
-    pub hex: Option<String>,
+    pub asm: String,
+    pub hex: String,
     #[serde(rename = "reqSigs")]
     pub req_sigs: Option<u32>,
     #[serde(rename = "type")]
-    pub type_field: Option<String>,
+    pub type_field: String,
     #[serde(default)]
     pub addresses: Vec<String>,
 }
@@ -95,7 +96,7 @@ pub struct TxInput {
     pub vout: Option<u32>,
     #[serde(rename = "scriptSig")]
     pub script_sig: Option<ScriptSig>,
-    pub sequence: Option<u64>,
+    pub sequence: u64,
     pub coinbase: Option<String>,
     #[serde(rename = "txinwitness")]
     pub txin_witness: Option<Vec<String>>,
@@ -112,12 +113,12 @@ pub struct TxOutput {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RawTransaction {
     pub txid: String,
-    pub hash: Option<String>,
-    pub version: Option<i32>,
-    pub size: Option<u64>,
-    pub vsize: Option<u64>,
-    pub weight: Option<u64>,
-    pub locktime: Option<u64>,
+    pub hash: String,
+    pub version: i32,
+    pub size: u64,
+    pub vsize: u64,
+    pub weight: u64,
+    pub locktime: u64,
 
     #[serde(default)]
     pub vin: Vec<TxInput>,
@@ -149,8 +150,8 @@ pub struct BlockchainInfo {
     pub automatic_pruning: Option<bool>,
     pub prune_target_size: Option<u64>,
 
-    pub softforks: Option<serde_json::Value>,
-    pub warnings: Option<String>,
+    pub softforks: serde_json::Value,
+    pub warnings: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
