@@ -56,15 +56,18 @@ impl JsonRpcClient {
             .send()
             .await?;
 
-        if !response.status().is_success() {
+        let status = response.status();
+
+        if !status.is_success() {
+            let body = response.text().await.unwrap_or_default();
             return Err(RpcError::RequestFailed(format!(
                 "http {}: {}",
-                response.status(),
-                response.text().await.unwrap_or_default()
+                status, body
             )));
         }
 
-        let rpc_response: JsonRpcResponse<T> = response.json().await?;
+        let text = response.text().await?;
+        let rpc_response: JsonRpcResponse<T> = serde_json::from_str(&text)?;
 
         if let Some(error) = rpc_response.error {
             return Err(RpcError::RpcResponseError {
@@ -92,23 +95,33 @@ impl BlockchainClient for JsonRpcClient {
         blockhash: Option<&str>,
     ) -> Result<RawTransaction> {
         let params = if let Some(hash) = blockhash {
-            json!([txid, verbose, hash])
+            json!([txid, if verbose { 1 } else { 0 }, hash])
         } else {
-            json!([txid, verbose])
+            json!([txid, if verbose { 1 } else { 0 }])
         };
 
-        let result: std::result::Result<RawTransaction, RpcError> =
-            self.call("getrawtransaction", params).await;
+        match self
+            .call::<RawTransaction>("getrawtransaction", params)
+            .await
+        {
+            Ok(tx) => Ok(tx),
 
-        if result.is_err() {
-            let wallet_tx: serde_json::Value = self.call("gettransaction", json!([txid])).await?;
+            Err(RpcError::RpcResponseError { code: -5, .. }) => {
+                // Standard “No such mempool or blockchain transaction. Use gettransaction…” case.[web:42][web:45][web:47]
+                let wallet_tx: serde_json::Value =
+                    self.call("gettransaction", json!([txid])).await?;
 
-            if let Some(hex) = wallet_tx.get("hex").and_then(|h| h.as_str()) {
-                return self.call("decoderawtransaction", json!([hex])).await;
+                if let Some(hex) = wallet_tx.get("hex").and_then(|h| h.as_str()) {
+                    self.call("decoderawtransaction", json!([hex])).await
+                } else {
+                    Err(RpcError::InvalidResponse(
+                        "gettransaction response missing hex field".to_string(),
+                    ))
+                }
             }
-        }
 
-        result
+            Err(e) => Err(e),
+        }
     }
 
     async fn list_unspent(
@@ -165,25 +178,16 @@ impl BlockchainClient for JsonRpcClient {
             return Ok(false);
         }
 
-        if let Some(is_watchonly) = validation.iswatchonly
-            && is_watchonly
-        {
+        if validation.ismine == Some(true) || validation.iswatchonly == Some(true) {
             return Ok(true);
         }
 
-        let received = self
-            .list_received_by_address(Some(0), true, true)
-            .await?;
+        let received = self.list_received_by_address(Some(0), true, true).await?;
 
         Ok(received.iter().any(|r| r.address == address))
     }
 
-    async fn import_address(
-        &self,
-        address: &str,
-        label: Option<&str>,
-        rescan: bool,
-    ) -> Result<()> {
+    async fn import_address(&self, address: &str, label: Option<&str>, rescan: bool) -> Result<()> {
         let params = json!([address, label.unwrap_or(""), rescan]);
         self.call::<serde_json::Value>("importaddress", params)
             .await?;
