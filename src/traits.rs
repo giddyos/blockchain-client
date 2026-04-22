@@ -47,8 +47,7 @@ pub trait BlockchainClient: Send + Sync {
 
     async fn is_address_watched(&self, address: &str) -> Result<bool>;
 
-    async fn import_address(&self, address: &str, label: Option<&str>, rescan: bool)
-        -> Result<()>;
+    async fn import_address(&self, address: &str, label: Option<&str>, rescan: bool) -> Result<()>;
 
     async fn validate_address(&self, address: &str) -> Result<AddressValidation>;
 
