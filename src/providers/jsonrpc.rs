@@ -76,9 +76,7 @@ impl JsonRpcClient {
             });
         }
 
-        rpc_response
-            .result
-            .ok_or_else(|| RpcError::InvalidResponse("missing result field".to_string()))
+        rpc_response.result.ok_or_else(|| RpcError::NoResult)
     }
 }
 
@@ -189,9 +187,13 @@ impl BlockchainClient for JsonRpcClient {
 
     async fn import_address(&self, address: &str, label: Option<&str>, rescan: bool) -> Result<()> {
         let params = json!([address, label.unwrap_or(""), rescan]);
-        self.call::<serde_json::Value>("importaddress", params)
-            .await?;
-        Ok(())
+        match self
+            .call::<()>("importaddress", params)
+            .await
+        {
+            Ok(_) | Err(RpcError::NoResult) => Ok(()),
+            Err(e) => Err(e),
+        }
     }
 
     async fn validate_address(&self, address: &str) -> Result<AddressValidation> {

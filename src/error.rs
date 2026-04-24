@@ -14,4 +14,6 @@ pub enum RpcError {
     Http(#[from] reqwest::Error),
     #[error(transparent)]
     Serialization(#[from] serde_json::Error),
+    #[error("no result returned")]
+    NoResult,
 }
